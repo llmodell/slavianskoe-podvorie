@@ -66,7 +66,7 @@ header{position:sticky;top:0;z-index:50;background:rgba(232,223,205,.82);backdro
 .hero{position:relative;min-height:88vh;display:flex;align-items:flex-end;color:#f6efe0;
   background:linear-gradient(to top,rgba(20,16,10,.82) 0%,rgba(20,16,10,.28) 45%,rgba(20,16,10,.42) 100%),
              center/cover no-repeat;}
-.hero-inner{padding:0 0 clamp(48px,7vw,96px);max-width:760px}
+.hero-inner{padding-bottom:clamp(48px,7vw,96px);max-width:760px}
 .hero .eyebrow{color:#e6c79a}
 .hero h1{font-size:clamp(2.9rem,7.5vw,5.4rem);font-weight:800;margin:.28em 0 .32em;text-shadow:0 2px 30px rgba(0,0,0,.35)}
 .hero p{font-size:clamp(1.05rem,2vw,1.28rem);color:#eadfce;max-width:34em;margin-bottom:1.9em}
@@ -238,6 +238,13 @@ footer a:hover{color:#fff}
   .burger{padding:4px}
   .hero-facts{gap:1.1em}
   .hero-facts b{font-size:1.3rem}
+  .hero{min-height:92vh}
+  .obj-hero{min-height:84vh}
+  .hero h1{font-size:clamp(2.3rem,8.5vw,3rem)}
+  .obj-hero h1{font-size:clamp(1.9rem,7.5vw,2.5rem)}
+  .hero p,.obj-hero p{font-size:1rem;max-width:24rem}
+  .hero .eyebrow,.crumbs{font-size:.72rem}
+  .hero-cta .btn,.obj-hero .btn{padding:.8em 1.3em}
 }
 @media(max-width:760px){ .complex-band .wrap{grid-template-columns:1fr!important;text-align:left} .complex-band .wrap>div:last-child{text-align:left!important} }
 @media(max-width:540px){
