@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Админка · Славянское подворье</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Podkova:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e8dfcd;--surface:#f7f1e5;--surface2:#efe6d4;--ink:#241c12;--ink-soft:#5f5140;--muted:#8a7c67;
+  --green:#2d4635;--green-deep:#20342a;--wood:#9c6b2f;--wood-dark:#7a5220;--red:#a5372b;
+  --line:rgba(36,28,18,.14);--line-strong:rgba(36,28,18,.28);--shadow:0 16px 44px -22px rgba(32,25,14,.5);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Manrope',system-ui,sans-serif;font-size:16px;line-height:1.55}
+h1,h2,h3{font-family:'Podkova',serif;margin:0;font-weight:700}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+button{font-family:'Manrope';cursor:pointer}
+.btn{border:none;border-radius:100px;font-weight:700;font-size:.9rem;padding:.6em 1.2em;transition:.15s;display:inline-flex;align-items:center;gap:.4em}
+.btn-primary{background:var(--green);color:#f7f1e5}.btn-primary:hover{background:var(--green-deep)}
+.btn-wood{background:var(--wood);color:#fff}.btn-wood:hover{background:var(--wood-dark)}
+.btn-ghost{background:transparent;border:1.5px solid var(--line-strong);color:var(--ink)}.btn-ghost:hover{border-color:var(--ink)}
+.btn-red{background:transparent;border:1.5px solid #d9b3ad;color:var(--red)}.btn-red:hover{background:#f6e0dc}
+.btn-sm{padding:.42em .9em;font-size:.82rem}
+
+/* login */
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:40px;max-width:380px;width:100%;text-align:center}
+.login-card .logo{color:var(--wood-dark);margin-bottom:14px}
+.login-card h1{font-size:1.5rem;margin-bottom:.3em}
+.login-card p{color:var(--muted);font-size:.9rem;margin:0 0 22px}
+.login-card input{width:100%;padding:.8em 1em;border:1px solid var(--line-strong);border-radius:10px;font-size:1rem;margin-bottom:14px;background:#fff;font-family:'Manrope'}
+.login-card input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(45,70,53,.12)}
+.login-err{color:var(--red);font-size:.85rem;font-weight:600;margin-bottom:10px;min-height:1.2em}
+
+/* app */
+#app{display:none}
+.topbar{background:var(--green-deep);color:#f6efe0;padding:16px 0}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.topbar h1{font-size:1.2rem;color:#fff;display:flex;align-items:center;gap:.5em}
+.topbar h1 svg{color:#d8b98a}
+.topbar .acts{display:flex;gap:8px}
+.topbar .btn-ghost{color:#f6efe0;border-color:rgba(246,239,224,.4)}
+.topbar .btn-ghost:hover{border-color:#fff;background:rgba(255,255,255,.08)}
+
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:26px 0 18px}
+.tabs{display:flex;gap:6px;background:var(--surface2);padding:5px;border-radius:100px}
+.tabs button{border:none;background:none;padding:.5em 1.1em;border-radius:100px;font-weight:700;font-size:.86rem;color:var(--ink-soft)}
+.tabs button.active{background:var(--green);color:#f6efe0}
+.tabs button .n{opacity:.7;font-weight:600}
+
+.list{display:flex;flex-direction:column;gap:12px;padding-bottom:60px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start}
+.card .main{min-width:0}
+.card .row1{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.card h3{font-size:1.15rem}
+.badge{font-size:.72rem;font-weight:700;padding:.28em .7em;border-radius:100px;text-transform:uppercase;letter-spacing:.04em}
+.b-new{background:#fbeecf;color:#8a6414}
+.b-confirmed{background:#dcefda;color:#2d5a37}
+.b-declined{background:#f0dcd8;color:#8f2c22}
+.b-cancelled{background:#e4ddd0;color:#6b5f4a}
+.src{font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase}
+.card .meta{display:flex;flex-wrap:wrap;gap:x;gap:6px 22px;color:var(--ink-soft);font-size:.92rem}
+.card .meta b{color:var(--ink)}
+.card .meta a{color:var(--green);font-weight:700;text-decoration:none}
+.card .comment{margin-top:8px;font-size:.9rem;color:var(--ink-soft);background:var(--surface2);padding:.5em .8em;border-radius:8px}
+.card .side{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.dates-big{font-family:'Podkova';font-weight:700;font-size:1.05rem;color:var(--green);white-space:nowrap}
+.empty{text-align:center;color:var(--muted);padding:50px 20px;font-size:1rem}
+
+/* add form */
+.add-panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:18px;display:none}
+.add-panel.open{display:block}
+.add-panel h3{margin-bottom:14px;font-size:1.15rem}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.f label{display:block;font-size:.78rem;font-weight:700;color:var(--ink-soft);margin-bottom:5px}
+.f input,.f select{width:100%;padding:.6em .8em;border:1px solid var(--line-strong);border-radius:9px;font-family:'Manrope';font-size:.92rem;background:#fff}
+.f input:focus,.f select:focus{outline:none;border-color:var(--green)}
+.add-msg{font-size:.88rem;font-weight:600;margin:12px 0 0;min-height:1.1em}
+.check{display:flex;align-items:center;gap:.5em;font-size:.9rem;font-weight:600;color:var(--ink-soft);margin-top:22px}
+.check input{width:auto}
+@media(max-width:720px){
+  .grid3{grid-template-columns:1fr 1fr}
+  .card{grid-template-columns:1fr}
+  .card .side{flex-direction:row;flex-wrap:wrap}
+}
+@media(max-width:480px){.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-card">
+    <div class="logo"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></div>
+    <h1>Славянское подворье</h1>
+    <p>Панель бронирований</p>
+    <div class="login-err" id="loginErr"></div>
+    <input type="password" id="pw" placeholder="Пароль" autocomplete="current-password">
+    <button class="btn btn-primary" id="loginBtn" style="width:100%;justify-content:center;padding:.85em">Войти</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="wrap">
+      <h1><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg> Бронирования</h1>
+      <div class="acts">
+        <button class="btn btn-ghost btn-sm" id="refreshBtn">Обновить</button>
+        <button class="btn btn-ghost btn-sm" id="logoutBtn">Выйти</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="bar">
+      <div class="tabs" id="tabs">
+        <button data-f="new" class="active">Новые <span class="n" id="cNew">0</span></button>
+        <button data-f="confirmed">Подтверждённые <span class="n" id="cConf">0</span></button>
+        <button data-f="all">Все <span class="n" id="cAll">0</span></button>
+      </div>
+      <button class="btn btn-wood btn-sm" id="addToggle">＋ Добавить бронь вручную</button>
+    </div>
+
+    <div class="add-panel" id="addPanel">
+      <h3>Новая бронь (телефон / Instagram)</h3>
+      <div class="grid3">
+        <div class="f"><label>Дом / услуга</label><select id="aHouse"><option value="1">Дом «У леса» (до 4)</option><option value="2">Большой дом (до 6)</option><option value="3">Вся территория (комплекс)</option></select></div>
+        <div class="f"><label>Заезд</label><input type="date" id="aIn"></div>
+        <div class="f"><label>Выезд</label><input type="date" id="aOut"></div>
+        <div class="f"><label>Имя гостя</label><input type="text" id="aName"></div>
+        <div class="f"><label>Телефон</label><input type="tel" id="aPhone"></div>
+        <div class="f"><label>Гостей</label><input type="number" id="aGuests" min="1" max="12" value="2"></div>
+        <div class="f"><label>Источник</label><select id="aSource"><option value="phone">Телефон</option><option value="instagram">Instagram</option><option value="manual">Другое</option></select></div>
+        <div class="f" style="grid-column:span 2"><label>Комментарий</label><input type="text" id="aComment" placeholder="необязательно"></div>
+      </div>
+      <label class="check"><input type="checkbox" id="aBanya"> С баней</label>
+      <div style="margin-top:16px;display:flex;gap:10px;align-items:center">
+        <button class="btn btn-primary btn-sm" id="addSave">Сохранить бронь</button>
+        <span class="add-msg" id="addMsg"></span>
+      </div>
+      <p style="font-size:.8rem;color:var(--muted);margin:10px 0 0">Такая бронь сразу займёт даты в календаре на сайте.</p>
+    </div>
+
+    <div class="list" id="list"><div class="empty">Загрузка…</div></div>
+  </div>
+</div>
+
+<script>
+const EDGE_URL="https://bkhdqkblfznvwmpyjwhv.supabase.co/functions/v1/admin";
+const ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJraGRxa2JsZnpudndtcHlqd2h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MTA1NDgsImV4cCI6MjA5OTQ4NjU0OH0.5-5AdVhsKNfCdLi0b455BTuDxpjt65y0cjAJ6_91HDU";
+const MONTHS=["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
+let PW=sessionStorage.getItem("sp_pw")||"";
+let DATA=[], filter="new";
+
+async function api(action, extra={}){
+  let r;
+  try{
+    r=await fetch(EDGE_URL,{method:"POST",
+      headers:{apikey:ANON,Authorization:"Bearer "+ANON,"Content-Type":"application/json"},
+      body:JSON.stringify({key:PW,action,...extra})});
+  }catch(e){ throw{net:true}; }
+  const j=await r.json().catch(()=>({}));
+  if(r.status===401)throw{auth:true};
+  if(!r.ok)throw new Error(j.error||("Ошибка "+r.status));
+  return j;
+}
+
+// login
+async function doLogin(pw){
+  PW=pw;
+  const err=document.getElementById("loginErr"); err.textContent="";
+  try{ await api("list"); sessionStorage.setItem("sp_pw",pw);
+    document.getElementById("login").style.display="none";
+    document.getElementById("app").style.display="block";
+    load();
+  }catch(e){
+    PW="";
+    if(e&&e.net) err.textContent="Нет связи с сервером. Откройте файл в браузере, а не в окне превью.";
+    else err.textContent="Неверный пароль";
+  }
+}
+document.getElementById("loginBtn").onclick=()=>doLogin(document.getElementById("pw").value);
+document.getElementById("pw").onkeydown=e=>{if(e.key==="Enter")doLogin(e.target.value);};
+document.getElementById("logoutBtn").onclick=()=>{sessionStorage.removeItem("sp_pw");location.reload();};
+document.getElementById("refreshBtn").onclick=load;
+
+function mapError(m){m=(m||"").toString();
+  if(/no_overlap|exclu|overlap/i.test(m))return "На эти даты у этого дома уже есть подтверждённая бронь. Сначала отклоните конфликтующую бронь или измените даты.";
+  if(/complex_conflict/i.test(m))return "Даты пересекаются с бронью всей территории (или наоборот).";
+  if(/chk_dates|check_out/i.test(m))return "Дата выезда должна быть позже даты заезда.";
+  return "Ошибка: "+m;
+}
+const fmt=s=>{const[y,m,d]=s.split("-");return d+" "+MONTHS[+m-1];};
+const nights=(a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
+
+async function load(){
+  try{
+    const j=await api("list"); DATA=j.bookings||[]; render();
+  }catch(e){ if(e.auth){sessionStorage.removeItem("sp_pw");location.reload();} }
+}
+
+function counts(){
+  document.getElementById("cNew").textContent=DATA.filter(b=>b.status==="new").length;
+  document.getElementById("cConf").textContent=DATA.filter(b=>b.status==="confirmed").length;
+  document.getElementById("cAll").textContent=DATA.length;
+}
+
+function render(){
+  counts();
+  const list=document.getElementById("list");
+  let rows=DATA;
+  if(filter==="new")rows=DATA.filter(b=>b.status==="new");
+  else if(filter==="confirmed")rows=DATA.filter(b=>b.status==="confirmed");
+  if(!rows.length){list.innerHTML='<div class="empty">Заявок пока нет.</div>';return;}
+  list.innerHTML="";
+  rows.forEach(b=>{
+    const hname=b.houses?.name||("Дом "+b.house_id);
+    const badge={new:"b-new",confirmed:"b-confirmed",declined:"b-declined",cancelled:"b-cancelled"}[b.status];
+    const badgeText={new:"новая",confirmed:"подтверждена",declined:"отклонена",cancelled:"отменена"}[b.status];
+    const srcText={website:"сайт",phone:"телефон",instagram:"instagram",manual:"вручную"}[b.source]||b.source;
+    const el=document.createElement("div");el.className="card";
+    el.innerHTML=`
+      <div class="main">
+        <div class="row1">
+          <h3>${hname}</h3>
+          <span class="badge ${badge}">${badgeText}</span>
+          <span class="src">· ${srcText}</span>
+        </div>
+        <div class="meta">
+          <span>👤 <b>${esc(b.guest_name)}</b></span>
+          <span>📞 <a href="tel:${esc(b.guest_phone)}">${esc(b.guest_phone)}</a></span>
+          <span>👥 ${b.guests_count} гост.</span>
+          ${b.wants_banya?'<span>🔥 баня</span>':''}
+        </div>
+        ${b.comment?`<div class="comment">${esc(b.comment)}</div>`:''}
+      </div>
+      <div class="side">
+        <div class="dates-big">${fmt(b.check_in)} → ${fmt(b.check_out)}</div>
+        <div style="font-size:.8rem;color:var(--muted);text-align:right;margin-bottom:4px">${nights(b.check_in,b.check_out)} ноч.</div>
+        ${b.status==="new"?`<button class="btn btn-primary btn-sm" data-act="confirmed" data-id="${b.id}">Подтвердить</button>
+          <button class="btn btn-ghost btn-sm" data-act="declined" data-id="${b.id}">Отклонить</button>`:''}
+        ${b.status==="declined"||b.status==="cancelled"?`<button class="btn btn-primary btn-sm" data-act="confirmed" data-id="${b.id}">Вернуть</button>`:''}
+        <button class="btn btn-red btn-sm" data-del="${b.id}">Удалить</button>
+      </div>`;
+    list.appendChild(el);
+  });
+  list.querySelectorAll("[data-act]").forEach(btn=>btn.onclick=async()=>{
+    btn.disabled=true; try{await api("set_status",{id:btn.dataset.id,status:btn.dataset.act});await load();}catch(e){alert(mapError(e.message||e));btn.disabled=false;}
+  });
+  list.querySelectorAll("[data-del]").forEach(btn=>btn.onclick=async()=>{
+    if(!confirm("Удалить эту бронь безвозвратно?"))return;
+    btn.disabled=true; try{await api("delete",{id:btn.dataset.del});await load();}catch(e){alert(mapError(e.message||e));btn.disabled=false;}
+  });
+}
+function esc(s){return(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+// tabs
+document.querySelectorAll("#tabs button").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll("#tabs button").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active");filter=t.dataset.f;render();
+});
+
+// add manual
+document.getElementById("addToggle").onclick=()=>document.getElementById("addPanel").classList.toggle("open");
+document.getElementById("addSave").onclick=async()=>{
+  const msg=document.getElementById("addMsg");msg.style.color="var(--red)";
+  const g={house_id:+aHouse.value,guest_name:aName.value.trim(),guest_phone:aPhone.value.trim(),
+    guests_count:+aGuests.value,check_in:aIn.value,check_out:aOut.value,
+    wants_banya:aBanya.checked,comment:aComment.value.trim()||null,source:aSource.value};
+  if(!g.guest_name||!g.check_in||!g.check_out){msg.textContent="Заполните имя и даты.";return;}
+  if(g.check_out<=g.check_in){msg.textContent="Дата выезда должна быть позже заезда.";return;}
+  try{
+    await api("create",{booking:g});
+    msg.style.color="var(--green)";msg.textContent="Бронь добавлена.";
+    aName.value=aPhone.value=aComment.value="";aIn.value=aOut.value="";
+    await load();
+    setTimeout(()=>{msg.textContent="";document.getElementById("addPanel").classList.remove("open");},1200);
+  }catch(e){
+    msg.textContent=mapError(e.message||e);
+  }
+};
+const aHouse=document.getElementById("aHouse"),aIn=document.getElementById("aIn"),aOut=document.getElementById("aOut"),
+  aName=document.getElementById("aName"),aPhone=document.getElementById("aPhone"),aGuests=document.getElementById("aGuests"),
+  aSource=document.getElementById("aSource"),aComment=document.getElementById("aComment"),aBanya=document.getElementById("aBanya");
+
+// auto-login if session pw
+if(PW){doLogin(PW);}
+</script>
+</body>
+</html>
