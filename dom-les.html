@@ -135,9 +135,10 @@ section{padding:clamp(64px,8vw,112px) 0}
 .book-panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);
   display:grid;grid-template-columns:1fr .92fr;overflow:hidden}
 .cal-side{padding:clamp(24px,3vw,38px);border-right:1px solid var(--line)}
-.house-toggle{display:flex;gap:8px;margin-bottom:22px;background:var(--surface2);padding:5px;border-radius:100px}
-.house-toggle button{flex:1;border:none;background:none;cursor:pointer;font-family:'Manrope';font-weight:700;font-size:.92rem;
-  padding:.7em .5em;border-radius:100px;color:var(--ink-soft);transition:.18s}
+.house-toggle{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px;background:var(--surface2);padding:5px;border-radius:16px}
+.house-toggle button{flex:1 1 auto;min-width:calc(50% - 6px);border:none;background:none;cursor:pointer;font-family:'Manrope';font-weight:700;font-size:.86rem;
+  padding:.65em .4em;border-radius:100px;color:var(--ink-soft);transition:.18s}
+@media(min-width:640px){.house-toggle button{min-width:0}}
 .house-toggle button.active{background:var(--green);color:#f6efe0}
 .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .cal-head .mname{font-family:'Podkova';font-weight:700;font-size:1.2rem;text-transform:capitalize}
@@ -152,7 +153,12 @@ section{padding:clamp(64px,8vw,112px) 0}
 .cal-day.empty{cursor:default}
 .cal-day.avail:hover{background:var(--surface2);border-color:var(--wood)}
 .cal-day.past,.cal-day.booked{color:var(--muted);cursor:not-allowed}
-.cal-day.booked{background:repeating-linear-gradient(-45deg,#e4d4c0,#e4d4c0 4px,#efe3d2 4px,#efe3d2 8px);text-decoration:line-through;opacity:.75}
+.cal-day{overflow:hidden}
+.cal-day .dnum{position:relative;z-index:2}
+.cal-day.bk-full::before,.cal-day.bk-full::after,.cal-day.bk-left::before,.cal-day.bk-right::after{content:"";position:absolute;top:0;bottom:0;width:50%;z-index:1;background:repeating-linear-gradient(-45deg,#d3bb98,#d3bb98 3px,transparent 3px,transparent 6px);pointer-events:none}
+.cal-day.bk-full::before,.cal-day.bk-left::before{left:0}
+.cal-day.bk-full::after,.cal-day.bk-right::after{right:0}
+.cal-day.booked .dnum{opacity:.55}
 .cal-day.past{opacity:.4}
 .cal-day.sel-start,.cal-day.sel-end{background:var(--green)!important;color:#f6efe0!important;border-color:var(--green)}
 .cal-day.in-range{background:rgba(45,70,53,.16)}
@@ -404,6 +410,7 @@ header{transition:box-shadow .3s}
           <button data-h="1" class="active">Дом «У леса»</button>
           <button data-h="2">Большой дом</button>
           <button data-h="3">Вся территория</button>
+          <button data-h="4">Баня + беседка</button>
         </div>
         <div class="cal-head">
           <div class="mname" id="calMonth">—</div>
@@ -495,13 +502,14 @@ const CX=3; // "вся территория"
 const HOUSES={
   1:{name:"Дом «У леса»",cap:4,wd:250,we:300,special2:150,flat:null},
   2:{name:"Большой дом",cap:6,wd:300,we:400,special2:null,flat:null},
-  3:{name:"Вся территория",cap:12,wd:1000,we:1000,special2:null,flat:1000}
+  3:{name:"Вся территория",cap:12,wd:1000,we:1000,special2:null,flat:1000},
+  4:{name:"Баня + беседка",cap:10,wd:150,we:150,special2:null,flat:null,hourly:true}
 };
 const MONTHS=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
 const DOW=["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
 
 let curHouse=1, view=new Date(), start=null, end=null;
-let bookedByHouse={1:new Set(),2:new Set(),3:new Set()};
+let bookedByHouse={1:new Set(),2:new Set(),3:new Set(),4:new Set()};
 view.setDate(1);
 
 const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
@@ -528,7 +536,7 @@ async function loadOccupancy(){
     });
     if(!r.ok)throw 0;
     const rows=await r.json();
-    bookedByHouse={1:new Set(),2:new Set(),3:new Set()};
+    bookedByHouse={1:new Set(),2:new Set(),3:new Set(),4:new Set()};
     rows.forEach(b=>{
       let d=parseD(b.check_in),out=parseD(b.check_out);
       while(d<out){bookedByHouse[b.house_id]?.add(iso(d));d.setDate(d.getDate()+1);}
@@ -538,11 +546,13 @@ async function loadOccupancy(){
 }
 
 // «вся территория» занята, если занят ЛЮБОЙ объект; отдельный дом занят, если занят он сам или вся территория
-function isBooked(d){
+function nightBooked(d){
   const s=iso(d);
-  if(curHouse===CX) return bookedByHouse[1].has(s)||bookedByHouse[2].has(s)||bookedByHouse[3].has(s);
+  if(curHouse===CX) return bookedByHouse[1].has(s)||bookedByHouse[2].has(s)||bookedByHouse[3].has(s)||bookedByHouse[4].has(s);
   return bookedByHouse[curHouse].has(s)||bookedByHouse[CX].has(s);
 }
+function isBooked(d){return nightBooked(d);}
+function dayBefore(d){const x=new Date(d);x.setDate(x.getDate()-1);return x;}
 
 function renderCal(){
   document.getElementById("calMonth").textContent=MONTHS[view.getMonth()]+" "+view.getFullYear();
@@ -555,11 +565,16 @@ function renderCal(){
   const days=new Date(view.getFullYear(),view.getMonth()+1,0).getDate();
   for(let dn=1;dn<=days;dn++){
     const d=new Date(view.getFullYear(),view.getMonth(),dn);
-    const cell=document.createElement("div");cell.className="cal-day";cell.textContent=dn;
+    const cell=document.createElement("div");cell.className="cal-day";cell.innerHTML='<span class="dnum">'+dn+'</span>';
+    const R=nightBooked(d), L=nightBooked(dayBefore(d));
     if(d<today()){cell.classList.add("past");}
-    else if(isBooked(d)){cell.classList.add("booked");}
+    else if(R){
+      cell.classList.add("booked");
+      cell.classList.add(L?"bk-full":"bk-right");
+    }
     else{
       cell.classList.add("avail");
+      if(L)cell.classList.add("bk-left");
       cell.onclick=()=>pickDate(d);
       if(start&&iso(d)===iso(start))cell.classList.add("sel-start");
       if(end&&iso(d)===iso(end))cell.classList.add("sel-end");
@@ -589,6 +604,7 @@ function nights(){return end?Math.round((end-start)/86400000):0;}
 function calcPrice(){
   if(!start||!end)return null;
   const h=HOUSES[curHouse];const g=+document.getElementById("fGuests").value;
+  if(h.hourly)return null;
   if(h.flat)return nights()*h.flat;
   if(h.special2&&g<=2)return nights()*h.special2;
   let sum=0,d=new Date(start);
@@ -604,7 +620,8 @@ function updateReadout(){
   else if(start){r.innerHTML=`Заезд <b>${fmtD(start)}</b> — теперь выберите дату выезда.`;}
   else{r.textContent="Даты не выбраны — отметьте их на календаре слева.";}
   const est=document.getElementById("estimate");const p=calcPrice();
-  est.innerHTML=p?`Примерно <b>${p} руб.</b><small>за ${nights()} ноч. в доме «${HOUSES[curHouse].name.replace(/[«»]/g,'')}»${document.getElementById("fBanya").checked?" + баня":""}. Точную сумму подтвердит хозяин.</small>`:"";
+  if(HOUSES[curHouse].hourly){est.innerHTML=(start&&end)?`Баня — <b>150 руб.</b><small>за 3 часа · далее +20 руб./час. Точное время согласуем.</small>`:"";}
+  else est.innerHTML=p?`Примерно <b>${p} руб.</b><small>за ${nights()} ноч. в доме «${HOUSES[curHouse].name.replace(/[«»]/g,'')}»${document.getElementById("fBanya").checked?" + баня":""}. Точную сумму подтвердит хозяин.</small>`:"";
 }
 
 // house toggle
@@ -614,7 +631,7 @@ document.querySelectorAll("#houseToggle button").forEach(b=>{
     b.classList.add("active");curHouse=+b.dataset.h;start=end=null;
     document.getElementById("formHouseName").textContent=`${HOUSES[curHouse].name} · до ${HOUSES[curHouse].cap} гостей`;
     const banyaRow=document.getElementById("banyaRow");
-    if(curHouse===CX){banyaRow.style.display="none";document.getElementById("fBanya").checked=false;}
+    if(curHouse===CX||HOUSES[curHouse].hourly){banyaRow.style.display="none";document.getElementById("fBanya").checked=false;}
     else{banyaRow.style.display="";}
     fillGuests();updateReadout();renderCal();
   };
