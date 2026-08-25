@@ -510,6 +510,7 @@ const DOW=["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
 
 let curHouse=1, view=new Date(), start=null, end=null;
 let bookedByHouse={1:new Set(),2:new Set(),3:new Set(),4:new Set()};
+let banyaAddon=new Set();
 view.setDate(1);
 
 const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
@@ -537,9 +538,14 @@ async function loadOccupancy(){
     if(!r.ok)throw 0;
     const rows=await r.json();
     bookedByHouse={1:new Set(),2:new Set(),3:new Set(),4:new Set()};
+    banyaAddon=new Set();
     rows.forEach(b=>{
       let d=parseD(b.check_in),out=parseD(b.check_out);
-      while(d<out){bookedByHouse[b.house_id]?.add(iso(d));d.setDate(d.getDate()+1);}
+      while(d<out){
+        bookedByHouse[b.house_id]?.add(iso(d));
+        if(b.wants_banya && (b.house_id===1||b.house_id===2)) banyaAddon.add(iso(d));
+        d.setDate(d.getDate()+1);
+      }
     });
   }catch(e){/* оффлайн-превью: календарь просто без занятых дат */}
   renderCal();
@@ -549,6 +555,7 @@ async function loadOccupancy(){
 function nightBooked(d){
   const s=iso(d);
   if(curHouse===CX) return bookedByHouse[1].has(s)||bookedByHouse[2].has(s)||bookedByHouse[3].has(s)||bookedByHouse[4].has(s);
+  if(curHouse===4) return bookedByHouse[4].has(s)||bookedByHouse[3].has(s)||banyaAddon.has(s);
   return bookedByHouse[curHouse].has(s)||bookedByHouse[CX].has(s);
 }
 function isBooked(d){return nightBooked(d);}
