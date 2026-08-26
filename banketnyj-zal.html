@@ -350,6 +350,20 @@ var GA_ID="";      /* Google Analytics Measurement ID, напр. G-XXXXXXX */
 if(METRIKA_ID){(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");ym(METRIKA_ID,"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true});}
 if(GA_ID){var gs=document.createElement("script");gs.async=1;gs.src="https://www.googletagmanager.com/gtag/js?id="+GA_ID;document.head.appendChild(gs);window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag("js",new Date());gtag("config",GA_ID);}
 </script>
+<style>
+.obj-cols{display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(26px,4vw,52px);align-items:start;padding:clamp(36px,5vw,64px) 0}
+.obj-media{position:sticky;top:88px;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.obj-media .slider{height:min(78vh,640px)}
+.obj-media .slide img{height:min(78vh,640px);object-fit:cover}
+.obj-panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:26px 28px;margin-bottom:26px}
+.obj-title{font-size:clamp(1.7rem,3.4vw,2.4rem);margin:0 0 .55em}
+.obj-side .obj-desc{padding:0 4px}
+@media(max-width:900px){
+  .obj-cols{grid-template-columns:1fr;gap:24px}
+  .obj-media{position:static}
+  .obj-media .slider,.obj-media .slide img{height:min(64vh,460px)}
+}
+</style>
 </head><body>
 <header>
   <div class="wrap nav">
@@ -381,19 +395,20 @@ if(GA_ID){var gs=document.createElement("script");gs.async=1;gs.src="https://www
   </div>
 </section>
 
-<section class="obj-gallery"><div class="wrap"><div class="slider" data-autoplay="6000" style="border-radius:var(--r)"><div class="slides"><div class="slide"><img src="images/da30eccaddea.jpg" alt=""></div></div><button class="s-arrow prev" aria-label="Назад">‹</button><button class="s-arrow next" aria-label="Вперёд">›</button><div class="s-dots"></div></div></div></section>
-
-<section class="obj-info"><div class="wrap obj-grid">
-  <div class="obj-desc">
-    <h2>Банкетный зал</h2>
-    <p>Просторный рубленый зал с массивными деревянными столами, живым камином и лавками вдоль стен — настоящая славянская гридница.</p><p>Отлично подходит для свадеб, юбилеев, корпоративов и семейных торжеств. Зал входит в аренду всей территории, а также может быть добавлен к проживанию.</p>
-    <ul class="obj-rules"><li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>Зал доступен при аренде всей территории (1000 руб./сутки) или по договорённости.</span></li><li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>Вместимость и меню согласуем индивидуально.</span></li><li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>Живой камин и место для музыки.</span></li><li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>Оставьте заявку — обсудим ваше событие.</span></li></ul>
+<section class="obj-main"><div class="wrap obj-cols">
+  <div class="obj-media"><div class="slider" data-autoplay="6000" style="border-radius:var(--r)"><div class="slides"><div class="slide"><img src="images/da30eccaddea.jpg" alt=""></div></div><button class="s-arrow prev" aria-label="Назад">‹</button><button class="s-arrow next" aria-label="Вперёд">›</button><div class="s-dots"></div></div></div>
+  <div class="obj-side">
+    <div class="obj-panel">
+      <h2 class="obj-title">Банкетный зал</h2>
+      <div class="pricebox"><div class="obj-price">1000 руб.<small>в составе аренды всей территории / сутки</small></div></div>
+      <ul class="amen-list"><li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span>массивные деревянные столы</span></li><li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span>живой камин</span></li><li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span>лавки вдоль стен</span></li><li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span>для больших компаний</span></li><li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span>свадьбы и юбилеи</span></li><li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span>атмосфера гридницы</span></li></ul>
+      <a class="btn btn-primary" href="#request" style="width:100%;justify-content:center">Оставить заявку</a><a class="btn btn-wood" href="index.html#book" style="margin-top:10px">Забронировать всю территорию</a>
+    </div>
+    <div class="obj-desc">
+      <p>Просторный рубленый зал с массивными деревянными столами, живым камином и лавками вдоль стен — настоящая славянская гридница.</p><p>Отлично подходит для свадеб, юбилеев, корпоративов и семейных торжеств. Зал входит в аренду всей территории, а также может быть добавлен к проживанию.</p>
+      <ul class="obj-rules"><li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>Зал доступен при аренде всей территории (1000 руб./сутки) или по договорённости.</span></li><li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>Вместимость и меню согласуем индивидуально.</span></li><li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>Живой камин и место для музыки.</span></li><li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>Оставьте заявку — обсудим ваше событие.</span></li></ul>
+    </div>
   </div>
-  <aside class="obj-card">
-    <div class="pricebox"><div class="obj-price">1000 руб.<small>в составе аренды всей территории / сутки</small></div></div>
-    <ul class="amen-list"><li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span>массивные деревянные столы</span></li><li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span>живой камин</span></li><li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span>лавки вдоль стен</span></li><li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span>для больших компаний</span></li><li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span>свадьбы и юбилеи</span></li><li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span>атмосфера гридницы</span></li></ul>
-    <a class="btn btn-primary" href="#request" style="width:100%;justify-content:center">Оставить заявку</a><a class="btn btn-wood" href="index.html#book" style="margin-top:10px">Забронировать всю территорию</a>
-  </aside>
 </div></section>
 
 <section class="book" id="request"><div class="wrap">
