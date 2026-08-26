@@ -1,0 +1,6 @@
+{
+  "name":"Славянское подворье","short_name":"Подворье",
+  "description":"Агроусадьба в славянском стиле под Кобрином",
+  "start_url":"/","display":"standalone","background_color":"#e8dfcd","theme_color":"#2d4635",
+  "icons":[{"src":"/apple-touch-icon.png","sizes":"180x180","type":"image/png"},{"src":"/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]
+}
