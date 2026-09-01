@@ -830,12 +830,12 @@ function renderCal(){
     const cell=document.createElement("div");cell.className="cal-day";cell.innerHTML='<span class="dnum">'+dn+'</span>';
     const R=nightBooked(d), L=nightBooked(dayBefore(d));
     if(d<today()){cell.classList.add("past");}
-    else if(R){
-      cell.classList.add("booked");
-      cell.classList.add(L?"bk-full":"bk-right");
+    else if(R&&L){
+      cell.classList.add("booked","bk-full");
     }
     else{
       cell.classList.add("avail");
+      if(R)cell.classList.add("bk-right");
       if(L)cell.classList.add("bk-left");
       cell.onclick=()=>pickDate(d);
       if(start&&iso(d)===iso(start))cell.classList.add("sel-start");
@@ -854,10 +854,13 @@ function rangeHasBooked(a,b){
 }
 
 function pickDate(d){
+  const R=nightBooked(d);
   if(start&&!end){
     if(d>start&&!rangeHasBooked(start,d)){end=d;}
-    else{start=d;end=null;}
-  }else{start=d;end=null;}
+    else if(!R){start=d;end=null;}
+  }else{
+    if(!R){start=d;end=null;}
+  }
   updateReadout();renderCal();
 }
 
