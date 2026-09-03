@@ -92,6 +92,27 @@ button{font-family:'Manrope';cursor:pointer}
 <meta name="theme-color" content="#2d4635">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>
+.admincal{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;position:relative}
+.ac-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ac-head .m{font-family:'Podkova';font-weight:700;font-size:1.15rem;text-transform:capitalize}
+.ac-nav button{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:1.05rem}
+.ac-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.ac-dow{text-align:center;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;padding:4px 0}
+.ac-day{min-height:58px;border-radius:8px;border:1px solid var(--line);padding:5px 6px;font-size:.85rem;position:relative}
+.ac-day.empty{border:none}
+.ac-day.has{cursor:pointer}
+.ac-day.c{background:#dcefda;border-color:#b9d8b6}
+.ac-day.n{background:#fbeecf;border-color:#e7d8ac}
+.ac-day .cnt{position:absolute;right:5px;bottom:4px;font-size:.7rem;font-weight:700;color:var(--ink-soft)}
+.ac-tip{position:absolute;z-index:60;background:var(--ink);color:#f6efe0;border-radius:10px;padding:10px 12px;font-size:.8rem;width:270px;box-shadow:var(--shadow);pointer-events:none;display:none;line-height:1.45}
+.ac-tip b{color:#fff}
+.ac-tip .r{padding:5px 0;border-top:1px solid rgba(255,255,255,.15)}
+.ac-tip .r:first-of-type{border-top:none}
+.ac-legend{display:flex;gap:16px;margin-top:12px;font-size:.76rem;color:var(--muted)}
+.ac-legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+@media(max-width:600px){.ac-day{min-height:44px;font-size:.78rem;padding:3px 4px}.ac-tip{width:220px}}
+</style>
 </head>
 <body>
 
@@ -125,6 +146,7 @@ button{font-family:'Manrope';cursor:pointer}
         <button data-f="new" class="active">Новые <span class="n" id="cNew">0</span></button>
         <button data-f="confirmed">Подтверждённые <span class="n" id="cConf">0</span></button>
         <button data-f="all">Все <span class="n" id="cAll">0</span></button>
+        <button data-f="calendar">📅 Календарь</button>
       </div>
       <button class="btn btn-wood btn-sm" id="addToggle">＋ Добавить бронь вручную</button>
     </div>
@@ -150,6 +172,7 @@ button{font-family:'Manrope';cursor:pointer}
     </div>
 
     <div class="list" id="list"><div class="empty">Загрузка…</div></div>
+    <div class="admincal" id="admincal" style="display:none"></div>
   </div>
 </div>
 
@@ -200,6 +223,18 @@ function mapError(m){m=(m||"").toString();
 }
 const fmt=s=>{const[y,m,d]=s.split("-");return d+" "+MONTHS[+m-1];};
 const nights=(a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
+const PRICES={1:{wd:250,we:300,special2:150},2:{wd:300,we:400},3:{flat:1000},4:{hourly:1}};
+function priceOf(b){
+  if(b.total_price) return Math.round(parseFloat(b.total_price))+" руб.";
+  const P=PRICES[b.house_id]||{};
+  if(P.hourly) return "150 руб./3ч";
+  let d=new Date(b.check_in),out=new Date(b.check_out),sum=0;
+  if(P.flat){sum=nights(b.check_in,b.check_out)*P.flat;}
+  else if(P.special2&&b.guests_count<=2){sum=nights(b.check_in,b.check_out)*P.special2;}
+  else{while(d<out){const wd=d.getDay();sum+=(wd===5||wd===6||wd===0)?P.we:P.wd;d.setDate(d.getDate()+1);}}
+  if(b.wants_banya&&(b.house_id===1||b.house_id===2))sum+=150;
+  return "≈ "+sum+" руб.";
+}
 
 async function load(){
   try{
@@ -245,6 +280,7 @@ function render(){
       <div class="side">
         <div class="dates-big">${fmt(b.check_in)} → ${fmt(b.check_out)}</div>
         <div style="font-size:.8rem;color:var(--muted);text-align:right;margin-bottom:4px">${nights(b.check_in,b.check_out)} ноч.</div>
+        <div style="font-family:'Podkova';font-weight:700;color:var(--green);text-align:right;margin-bottom:8px">${priceOf(b)}</div>
         ${b.status==="new"?`<button class="btn btn-primary btn-sm" data-act="confirmed" data-id="${b.id}">Подтвердить</button>
           <button class="btn btn-ghost btn-sm" data-act="declined" data-id="${b.id}">Отклонить</button>`:''}
         ${b.status==="declined"||b.status==="cancelled"?`<button class="btn btn-primary btn-sm" data-act="confirmed" data-id="${b.id}">Вернуть</button>`:''}
@@ -263,9 +299,52 @@ function render(){
 function esc(s){return(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 
 // tabs
+
+let adminMonth=new Date(); adminMonth.setDate(1);
+const acDOW=["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+function acKey(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function bookingsCovering(ds){return DATA.filter(b=>(b.status==="new"||b.status==="confirmed")&&b.check_in<=ds&&ds<b.check_out);}
+function renderCalendar(){
+  const el=document.getElementById("admincal");
+  const y=adminMonth.getFullYear(),m=adminMonth.getMonth();
+  let h=`<div class="ac-head"><div class="m">${MONTHS[m]} ${y}</div><div class="ac-nav"><button id="acPrev">‹</button> <button id="acNext">›</button></div></div>`;
+  h+='<div class="ac-grid">'+acDOW.map(x=>`<div class="ac-dow">${x}</div>`).join("");
+  const first=new Date(y,m,1); let lead=(first.getDay()+6)%7;
+  for(let i=0;i<lead;i++)h+='<div class="ac-day empty"></div>';
+  const days=new Date(y,m+1,0).getDate();
+  for(let dn=1;dn<=days;dn++){
+    const ds=acKey(new Date(y,m,dn)); const bks=bookingsCovering(ds);
+    let cls="ac-day"; if(bks.length){cls+=" has "+(bks.some(b=>b.status==="confirmed")?"c":"n");}
+    h+=`<div class="${cls}" data-day="${ds}">${dn}${bks.length?`<span class="cnt">${bks.length}</span>`:""}</div>`;
+  }
+  h+='</div><div class="ac-legend"><span><i style="background:#dcefda;border:1px solid #b9d8b6"></i>подтверждённые</span><span><i style="background:#fbeecf;border:1px solid #e7d8ac"></i>новые</span></div><div class="ac-tip" id="acTip"></div>';
+  el.innerHTML=h;
+  document.getElementById("acPrev").onclick=()=>{adminMonth.setMonth(m-1);renderCalendar();};
+  document.getElementById("acNext").onclick=()=>{adminMonth.setMonth(m+1);renderCalendar();};
+  const tip=document.getElementById("acTip");
+  el.querySelectorAll(".ac-day.has").forEach(cell=>{
+    const show=()=>{
+      const bks=bookingsCovering(cell.dataset.day);
+      const stТ={new:"новая",confirmed:"подтв.",declined:"откл.",cancelled:"отм."};
+      tip.innerHTML=`<b>${fmt(cell.dataset.day)}</b>`+bks.map(b=>{
+        const hn=b.houses?.name||("Дом "+b.house_id);
+        return `<div class="r">🏡 ${esc(hn)} · ${stТ[b.status]}<br>👤 ${esc(b.guest_name)} · <a href="tel:${esc(b.guest_phone)}" style="color:#e6c79a">${esc(b.guest_phone)}</a><br>📅 ${fmt(b.check_in)} → ${fmt(b.check_out)} · ${priceOf(b)}${b.wants_banya?" · 🔥":""}</div>`;
+      }).join("");
+      tip.style.display="block";
+      const er=el.getBoundingClientRect(), r=cell.getBoundingClientRect();
+      let left=r.left-er.left; left=Math.max(0,Math.min(left,el.clientWidth-tip.offsetWidth-4));
+      tip.style.left=left+"px"; tip.style.top=(r.bottom-er.top+6)+"px";
+    };
+    cell.onmouseenter=show; cell.onclick=show;
+    cell.onmouseleave=()=>{tip.style.display="none";};
+  });
+}
+
 document.querySelectorAll("#tabs button").forEach(t=>t.onclick=()=>{
   document.querySelectorAll("#tabs button").forEach(x=>x.classList.remove("active"));
-  t.classList.add("active");filter=t.dataset.f;render();
+  t.classList.add("active");filter=t.dataset.f;
+  if(filter==="calendar"){document.getElementById("list").style.display="none";document.getElementById("admincal").style.display="block";renderCalendar();}
+  else{document.getElementById("admincal").style.display="none";document.getElementById("list").style.display="";render();}
 });
 
 // add manual
